@@ -1,6 +1,6 @@
 package timedelayqueue;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.UUID;
@@ -26,6 +26,7 @@ public class TimeDelayQueue {
     //      K: Timestamp
 //          V: Number of operations at the timestamp
     Map<Long, Integer> history;
+    private List<Long> historyActions;
 
     // a comparator to sort messages
     private class PubSubMessageComparator implements Comparator<PubSubMessage> {
@@ -42,6 +43,7 @@ public class TimeDelayQueue {
         this.delay = delay;
         this.messages = new ArrayList<>();
         this.history = new HashMap<>();
+        this.historyActions = new ArrayList<>();
     }
 
     // add() and getNext() are equally worth in load
@@ -51,12 +53,18 @@ public class TimeDelayQueue {
         // If key does not exist, put a 1
         // Else increment value at the key
         history.merge(t, 1, Integer::sum);
+        historyActions.add(t);
     }
 
     // add a message to the TimeDelayQueue
     // if a message with the same id exists then
     // return false
     public boolean add(PubSubMessage msg) {
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+
+        if (msg.isTransient()) {
+            removeTransientMsg((TransientPubSubMessage) msg, currentTimestamp);
+        }
         addToHistory();
         
         if (!messages.contains(msg)) {
@@ -74,7 +82,7 @@ public class TimeDelayQueue {
      * @return
      */
     public long getTotalMsgCount() {
-        return -1;
+        return totalMessageCount;
     }
 
     // return the next message and PubSubMessage.NO_MSG
@@ -84,6 +92,10 @@ public class TimeDelayQueue {
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
         
         PubSubMessage nextMsg = messages.get(0);
+        if (nextMsg.isTransient()) {
+            removeTransientMsg((TransientPubSubMessage) nextMsg, currentTimestamp);
+        }
+
         if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
             messages.remove(nextMsg);
             return nextMsg;
@@ -101,5 +113,13 @@ public class TimeDelayQueue {
 
         return -1;
     }
+
+    public void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
+        if (msg.getTimestamp().getTime() >= msg.getLifetime()) {
+            messages.remove(msg);
+        }
+    }
+
+
 
 }
