@@ -1,5 +1,8 @@
 package timedelayqueue;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -94,6 +97,7 @@ public class TimeDelayQueue {
         PubSubMessage nextMsg = messages.get(0);
         if (nextMsg.isTransient()) {
             removeTransientMsg((TransientPubSubMessage) nextMsg, currentTimestamp);
+            nextMsg = messages.get(0);
         }
 
         if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
@@ -120,6 +124,25 @@ public class TimeDelayQueue {
         }
     }
 
+    public static void main(String[] args) {
+//        TimeDelayQueue tdq = new TimeDelayQueue(DELAY);
+//
+//        UUID sndID     = UUID.randomUUID();
+//        UUID rcvID     = UUID.randomUUID();
+//        String msgText = gson.toJson("test");
+//        TransientPubSubMessage msg1 = new TransientPubSubMessage(sndID, rcvID, msgText, MSG_LIFETIME);
+//        PubSubMessage          msg2 = new PubSubMessage(sndID, rcvID, msgText);
+//        tdq.add(msg1);
+//        tdq.add(msg2);
+//        try {
+//            Thread.sleep(MSG_LIFETIME + 1);
+//        }
+//        catch (InterruptedException ie) {
+//            throw new RuntimeException();
+//        }
+//        PubSubMessage get = tdq.getNext();
 
+
+    }
 
 }
