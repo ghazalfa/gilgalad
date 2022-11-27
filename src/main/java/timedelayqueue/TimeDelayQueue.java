@@ -115,7 +115,7 @@ public class TimeDelayQueue {
     }
 
     public void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
-        if (msg.getTimestamp().getTime() >= msg.getLifetime()) {
+        if (currentTimestamp.getTime() >= msg.getTimestamp().getTime() + msg.getLifetime()) {
             messages.remove(msg);
         }
     }
