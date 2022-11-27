@@ -1,6 +1,6 @@
 package timedelayqueue;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.UUID;
@@ -22,10 +22,9 @@ public class TimeDelayQueue {
     // Store the delay of the TimeDelayQueue (initialized in constructor)
     int delay;
 
-    // Store all operations that have occurred and the time in which they occurred
-    //      K: Timestamp
-//          V: Number of operations at the timestamp
-    Map<Long, Integer> history;
+    // Store all operations that have occurred by storing the timestamp in a list
+    // Assume that multiple operations cannot happen at the same millisecond
+    List<Long> history;
 
     // a comparator to sort messages
     private class PubSubMessageComparator implements Comparator<PubSubMessage> {
@@ -41,16 +40,11 @@ public class TimeDelayQueue {
     public TimeDelayQueue(int delay) {
         this.delay = delay;
         this.messages = new ArrayList<>();
-        this.history = new HashMap<>();
+        this.history = new ArrayList<>();
     }
 
-    // add() and getNext() are equally worth in load
-    // increment the count at a specific timestamp
     private void addToHistory() {
-        long t = System.currentTimeMillis();
-        // If key does not exist, put a 1
-        // Else increment value at the key
-        history.merge(t, 1, Integer::sum);
+        history.add(System.currentTimeMillis());
     }
 
     // add a message to the TimeDelayQueue
@@ -74,7 +68,7 @@ public class TimeDelayQueue {
      * @return
      */
     public long getTotalMsgCount() {
-        return -1;
+        return this.totalMessageCount;
     }
 
     // return the next message and PubSubMessage.NO_MSG
@@ -96,8 +90,6 @@ public class TimeDelayQueue {
     // any window of length timeWindow
     // the operations of interest are add and getNext
     public int getPeakLoad(int timeWindow) {
-
-
 
         return -1;
     }
