@@ -113,8 +113,6 @@ public class TimeDelayQueue {
     // the operations of interest are add and getNext
     public int getPeakLoad(int timeWindow) {
 
-
-
         return -1;
     }
 
