@@ -1,5 +1,8 @@
 package timedelayqueue;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -21,6 +24,7 @@ public class TimeDelayQueue {
 
     // Store the delay of the TimeDelayQueue (initialized in constructor)
     int delay;
+
 
     // Store all operations that have occurred by storing the timestamp in a list
     // Assume that multiple operations cannot happen at the same millisecond
@@ -51,6 +55,11 @@ public class TimeDelayQueue {
     // if a message with the same id exists then
     // return false
     public synchronized boolean add(PubSubMessage msg) {
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+
+        if (msg.isTransient()) {
+            removeTransientMsg((TransientPubSubMessage) msg, currentTimestamp);
+        }
         addToHistory();
 
         if (!messages.contains(msg)) {
@@ -78,6 +87,11 @@ public class TimeDelayQueue {
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
 
         PubSubMessage nextMsg = messages.get(0);
+        if (nextMsg.isTransient()) {
+            removeTransientMsg((TransientPubSubMessage) nextMsg, currentTimestamp);
+            nextMsg = messages.get(0);
+        }
+
         if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
             messages.remove(nextMsg);
             return nextMsg;
@@ -109,8 +123,34 @@ public class TimeDelayQueue {
             }
         }
 
-
         return highest;
+    }
+
+    public synchronized void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
+        if (currentTimestamp.getTime() >= msg.getTimestamp().getTime() + msg.getLifetime()) {
+            messages.remove(msg);
+        }
+    }
+
+    public static void main(String[] args) {
+//        TimeDelayQueue tdq = new TimeDelayQueue(DELAY);
+//
+//        UUID sndID     = UUID.randomUUID();
+//        UUID rcvID     = UUID.randomUUID();
+//        String msgText = gson.toJson("test");
+//        TransientPubSubMessage msg1 = new TransientPubSubMessage(sndID, rcvID, msgText, MSG_LIFETIME);
+//        PubSubMessage          msg2 = new PubSubMessage(sndID, rcvID, msgText);
+//        tdq.add(msg1);
+//        tdq.add(msg2);
+//        try {
+//            Thread.sleep(MSG_LIFETIME + 1);
+//        }
+//        catch (InterruptedException ie) {
+//            throw new RuntimeException();
+//        }
+//        PubSubMessage get = tdq.getNext();
+
+
     }
 
 }
