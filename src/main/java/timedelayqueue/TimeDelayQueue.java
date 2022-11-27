@@ -58,6 +58,13 @@ public class TimeDelayQueue {
     // return false
     public boolean add(PubSubMessage msg) {
         addToHistory();
+        
+        if (!messages.contains(msg)) {
+            messages.add(msg);
+            Collections.sort(messages, new PubSubMessageComparator());
+            totalMessageCount++;
+            return true;
+        }
         return false;
     }
 
