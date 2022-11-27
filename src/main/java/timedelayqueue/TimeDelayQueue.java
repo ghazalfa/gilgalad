@@ -1,8 +1,5 @@
 package timedelayqueue;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -25,9 +22,8 @@ public class TimeDelayQueue {
     // Store the delay of the TimeDelayQueue (initialized in constructor)
     int delay;
 
-    // Store all operations that have occurred and the time in which they occurred
-    //      K: Timestamp
-//          V: Number of operations at the timestamp
+    // Store all operations that have occurred by storing the timestamp in a list
+    // Assume that multiple operations cannot happen at the same millisecond
     List<Long> history;
 
     // a comparator to sort messages
@@ -44,30 +40,19 @@ public class TimeDelayQueue {
     public TimeDelayQueue(int delay) {
         this.delay = delay;
         this.messages = new ArrayList<>();
-        this.history  = new ArrayList<>();
+        this.history = new ArrayList<>();
     }
 
-    // add() and getNext() are equally worth in load
-    // increment the count at a specific timestamp
-    private void addToHistory() {
-        long t = System.currentTimeMillis();
-        // If key does not exist, put a 1
-        // Else increment value at the key
-//        history.merge(t, 1, Integer::sum);
-        history.add(t);
+    private synchronized void addToHistory() {
+        history.add(System.currentTimeMillis());
     }
 
     // add a message to the TimeDelayQueue
     // if a message with the same id exists then
     // return false
-    public boolean add(PubSubMessage msg) {
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-
-        if (msg.isTransient()) {
-            removeTransientMsg((TransientPubSubMessage) msg, currentTimestamp);
-        }
+    public synchronized boolean add(PubSubMessage msg) {
         addToHistory();
-        
+
         if (!messages.contains(msg)) {
             messages.add(msg);
             Collections.sort(messages, new PubSubMessageComparator());
@@ -83,21 +68,16 @@ public class TimeDelayQueue {
      * @return
      */
     public long getTotalMsgCount() {
-        return totalMessageCount;
+        return this.totalMessageCount;
     }
 
     // return the next message and PubSubMessage.NO_MSG
     // if there is ni suitable message
-    public PubSubMessage getNext() {
+    public synchronized PubSubMessage getNext() {
         addToHistory();
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        
-        PubSubMessage nextMsg = messages.get(0);
-        if (nextMsg.isTransient()) {
-            removeTransientMsg((TransientPubSubMessage) nextMsg, currentTimestamp);
-            nextMsg = messages.get(0);
-        }
 
+        PubSubMessage nextMsg = messages.get(0);
         if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
             messages.remove(nextMsg);
             return nextMsg;
@@ -109,36 +89,28 @@ public class TimeDelayQueue {
     // performed on this TimeDelayQueue over
     // any window of length timeWindow
     // the operations of interest are add and getNext
-    public int getPeakLoad(int timeWindow) {
+    public synchronized int getPeakLoad(int timeWindow) {
+        int temp = 0;
+        int count = 0;
+        long timestamp;
+        int highest = 0;
 
-        return -1;
-    }
+        for(int i = 0; i<history.size(); i++){
+            count = 0;
+            timestamp = history.get(i) +timeWindow;
+            temp = i;
+            while(temp< history.size()&& history.get(temp)<=timestamp){
+                    count++;
+                    temp++;
+            }
 
-    public void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
-        if (currentTimestamp.getTime() >= msg.getTimestamp().getTime() + msg.getLifetime()) {
-            messages.remove(msg);
+            if(count>highest){
+                highest = count;
+            }
         }
-    }
-
-    public static void main(String[] args) {
-//        TimeDelayQueue tdq = new TimeDelayQueue(DELAY);
-//
-//        UUID sndID     = UUID.randomUUID();
-//        UUID rcvID     = UUID.randomUUID();
-//        String msgText = gson.toJson("test");
-//        TransientPubSubMessage msg1 = new TransientPubSubMessage(sndID, rcvID, msgText, MSG_LIFETIME);
-//        PubSubMessage          msg2 = new PubSubMessage(sndID, rcvID, msgText);
-//        tdq.add(msg1);
-//        tdq.add(msg2);
-//        try {
-//            Thread.sleep(MSG_LIFETIME + 1);
-//        }
-//        catch (InterruptedException ie) {
-//            throw new RuntimeException();
-//        }
-//        PubSubMessage get = tdq.getNext();
 
 
+        return highest;
     }
 
 }
