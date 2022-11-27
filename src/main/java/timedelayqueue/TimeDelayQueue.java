@@ -28,8 +28,7 @@ public class TimeDelayQueue {
     // Store all operations that have occurred and the time in which they occurred
     //      K: Timestamp
 //          V: Number of operations at the timestamp
-    Map<Long, Integer> history;
-    private List<Long> historyActions;
+    List<Long> history;
 
     // a comparator to sort messages
     private class PubSubMessageComparator implements Comparator<PubSubMessage> {
@@ -45,8 +44,7 @@ public class TimeDelayQueue {
     public TimeDelayQueue(int delay) {
         this.delay = delay;
         this.messages = new ArrayList<>();
-        this.history = new HashMap<>();
-        this.historyActions = new ArrayList<>();
+        this.history  = new ArrayList<>();
     }
 
     // add() and getNext() are equally worth in load
@@ -55,8 +53,8 @@ public class TimeDelayQueue {
         long t = System.currentTimeMillis();
         // If key does not exist, put a 1
         // Else increment value at the key
-        history.merge(t, 1, Integer::sum);
-        historyActions.add(t);
+//        history.merge(t, 1, Integer::sum);
+        history.add(t);
     }
 
     // add a message to the TimeDelayQueue
