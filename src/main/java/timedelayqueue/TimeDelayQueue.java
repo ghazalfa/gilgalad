@@ -81,6 +81,13 @@ public class TimeDelayQueue {
     // if there is ni suitable message
     public PubSubMessage getNext() {
         addToHistory();
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        
+        PubSubMessage nextMsg = messages.get(0);
+        if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
+            messages.remove(nextMsg);
+            return nextMsg;
+        }
         return PubSubMessage.NO_MSG;
     }
 
