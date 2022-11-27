@@ -43,16 +43,16 @@ public class TimeDelayQueue {
         this.history = new ArrayList<>();
     }
 
-    private synchronized void addToHistory() {
+    private void addToHistory() {
         history.add(System.currentTimeMillis());
     }
 
     // add a message to the TimeDelayQueue
     // if a message with the same id exists then
     // return false
-    public synchronized boolean add(PubSubMessage msg) {
+    public boolean add(PubSubMessage msg) {
         addToHistory();
-
+        
         if (!messages.contains(msg)) {
             messages.add(msg);
             Collections.sort(messages, new PubSubMessageComparator());
@@ -73,10 +73,10 @@ public class TimeDelayQueue {
 
     // return the next message and PubSubMessage.NO_MSG
     // if there is ni suitable message
-    public synchronized PubSubMessage getNext() {
+    public PubSubMessage getNext() {
         addToHistory();
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-
+        
         PubSubMessage nextMsg = messages.get(0);
         if (currentTimestamp.getTime() - nextMsg.getTimestamp().getTime() >= delay) {
             messages.remove(nextMsg);
@@ -89,28 +89,9 @@ public class TimeDelayQueue {
     // performed on this TimeDelayQueue over
     // any window of length timeWindow
     // the operations of interest are add and getNext
-    public synchronized int getPeakLoad(int timeWindow) {
-        int temp = 0;
-        int count = 0;
-        long timestamp;
-        int highest = 0;
+    public int getPeakLoad(int timeWindow) {
 
-        for(int i = 0; i<history.size(); i++){
-            count = 0;
-            timestamp = history.get(i) +timeWindow;
-            temp = i;
-            while(temp< history.size()&& history.get(temp)<=timestamp){
-                    count++;
-                    temp++;
-            }
-
-            if(count>highest){
-                highest = count;
-            }
-        }
-
-
-        return highest;
+        return -1;
     }
 
 }
