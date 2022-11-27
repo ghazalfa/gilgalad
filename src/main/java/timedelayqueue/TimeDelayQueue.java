@@ -126,6 +126,12 @@ public class TimeDelayQueue {
         return highest;
     }
 
+    /**
+     * Remove a TransientPubSubMessage from this.messages
+     * if its time within the TimeDelayQueue exceeds the TransientPubSubMessage's lifetime
+     * @param msg the TransientPubSubMessage
+     * @param currentTimestamp the current system time
+     */
     public synchronized void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
         if (currentTimestamp.getTime() >= msg.getTimestamp().getTime() + msg.getLifetime()) {
             messages.remove(msg);
@@ -133,23 +139,6 @@ public class TimeDelayQueue {
     }
 
     public static void main(String[] args) {
-//        TimeDelayQueue tdq = new TimeDelayQueue(DELAY);
-//
-//        UUID sndID     = UUID.randomUUID();
-//        UUID rcvID     = UUID.randomUUID();
-//        String msgText = gson.toJson("test");
-//        TransientPubSubMessage msg1 = new TransientPubSubMessage(sndID, rcvID, msgText, MSG_LIFETIME);
-//        PubSubMessage          msg2 = new PubSubMessage(sndID, rcvID, msgText);
-//        tdq.add(msg1);
-//        tdq.add(msg2);
-//        try {
-//            Thread.sleep(MSG_LIFETIME + 1);
-//        }
-//        catch (InterruptedException ie) {
-//            throw new RuntimeException();
-//        }
-//        PubSubMessage get = tdq.getNext();
-
 
     }
 
