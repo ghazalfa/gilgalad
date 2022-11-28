@@ -9,11 +9,29 @@ import java.util.PriorityQueue;
 import java.util.UUID;
 import java.util.*;
 
-// TODO: write a description for this class
-// TODO: complete all methods, irrespective of whether there is an explicit TODO or not
-// TODO: write clear specs
-// TODO: State the rep invariant and abstraction function
-// TODO: what is the thread safety argument?
+// Description: A TimeDelayQueue stores messages, the total number of messages ever added
+//              and a history of the operations performed on the queue (add/getNext).
+//              The TimeDelayQueue uses TimeStamps and System time to determine when
+//              a message can be removed and when transient message are out of their lifetime
+
+
+// Representation Invariant:
+
+
+// Abstraction Function:
+
+
+// Thread safety: We use the synchronized keyword on the methods below so that
+//                threads operate in a mutually exclusive manner, using the class itself
+//                as the mutex for synchronization
+//
+//                The methods, add(), getTotalMsgCount(), getNext(), getPeakLoad(), removeTransientMsg():
+//                could face concurrent modification and require synchronization of their shared resources
+//                mainly the list of messages and the history list.
+//
+//                For example, getPeakLoad() could be iterating over the history list
+//                while another thread is modifying the history list by adding a message to the queue.
+
 public class TimeDelayQueue {
 
     // Store all current messages in a list
@@ -24,7 +42,6 @@ public class TimeDelayQueue {
 
     // Store the delay of the TimeDelayQueue (initialized in constructor)
     int delay;
-
 
     // Store all operations that have occurred by storing the timestamp in a list
     // Assume that multiple operations cannot happen at the same millisecond
@@ -76,7 +93,7 @@ public class TimeDelayQueue {
      * by this TimeDelayQueue
      * @return
      */
-    public long getTotalMsgCount() {
+    public synchronized long getTotalMsgCount() {
         return this.totalMessageCount;
     }
 
