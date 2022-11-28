@@ -73,8 +73,8 @@ public class TimeDelayQueue {
 
     /**
      * Get the count of the total number of messages processed
-     * by this TimeDelayQueue
-     * @return
+     * by this TimeDelayQueue over the lifetime of the queue
+     * @return the total number of objects added to the queue
      */
     public long getTotalMsgCount() {
         return this.totalMessageCount;
