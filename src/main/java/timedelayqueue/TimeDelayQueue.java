@@ -80,8 +80,12 @@ public class TimeDelayQueue {
         return this.totalMessageCount;
     }
 
-    // return the next message and PubSubMessage.NO_MSG
-    // if there is ni suitable message
+
+    /**
+     * Get the next PubSubMessage in the TimeDelayQueue
+     * @return the PubSubMessage in the TimeDelayQueue with the earliest Timestamp that exceeds this.delay,
+     *      returns PubSubMessage.NO_MSG if there is n0 suitable message
+     */
     public synchronized PubSubMessage getNext() {
         addToHistory();
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
