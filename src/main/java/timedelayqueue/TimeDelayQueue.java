@@ -25,7 +25,6 @@ public class TimeDelayQueue {
     // Store the delay of the TimeDelayQueue (initialized in constructor)
     int delay;
 
-
     // Store all operations that have occurred by storing the timestamp in a list
     // Assume that multiple operations cannot happen at the same millisecond
     List<Long> history;
@@ -82,9 +81,9 @@ public class TimeDelayQueue {
 
 
     /**
-     * Get the next PubSubMessage in the TimeDelayQueue
-     * @return the PubSubMessage in the TimeDelayQueue with the earliest Timestamp that exceeds this.delay,
-     *      returns PubSubMessage.NO_MSG if there is n0 suitable message
+     * Get the next PubSubMessage in the TimeDelayQueue with the earliest Timestamp,
+     * and whose time in the queue exceeds this.delay
+     * @return the next PubSubMessage and PubSubMessage.NO_MSG if there is no suitable message
      */
     public synchronized PubSubMessage getNext() {
         addToHistory();
@@ -132,7 +131,7 @@ public class TimeDelayQueue {
 
     /**
      * Remove a TransientPubSubMessage from this.messages
-     * if its time within the TimeDelayQueue exceeds the TransientPubSubMessage's lifetime
+     * if its time in the TimeDelayQueue exceeds the TransientPubSubMessage's lifetime
      * @param msg the TransientPubSubMessage
      * @param currentTimestamp the current system time
      * modifies: this.messages
