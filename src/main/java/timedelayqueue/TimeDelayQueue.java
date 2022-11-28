@@ -135,8 +135,9 @@ public class TimeDelayQueue {
      * if its time within the TimeDelayQueue exceeds the TransientPubSubMessage's lifetime
      * @param msg the TransientPubSubMessage
      * @param currentTimestamp the current system time
+     * modifies: this.messages
      */
-    public synchronized void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
+    private synchronized void removeTransientMsg(TransientPubSubMessage msg, Timestamp currentTimestamp) {
         if (currentTimestamp.getTime() >= msg.getTimestamp().getTime() + msg.getLifetime()) {
             messages.remove(msg);
         }
