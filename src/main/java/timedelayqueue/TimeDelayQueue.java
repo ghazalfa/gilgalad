@@ -10,10 +10,11 @@ import java.util.UUID;
 import java.util.*;
 
 // TODO: write a description for this class
-// TODO: complete all methods, irrespective of whether there is an explicit TODO or not
 // TODO: write clear specs
 // TODO: State the rep invariant and abstraction function
 // TODO: what is the thread safety argument?
+
+
 public class TimeDelayQueue {
 
     // Store all current messages in a list
@@ -103,6 +104,12 @@ public class TimeDelayQueue {
     // performed on this TimeDelayQueue over
     // any window of length timeWindow
     // the operations of interest are add and getNext
+
+    /**
+     * Get the maximum number of operations performed on TimDelayQueue over any window
+     * of time
+     * @param timeWindow length of time of the window, must be >= 0
+     **/
     public synchronized int getPeakLoad(int timeWindow) {
         int temp = 0;
         int count = 0;
